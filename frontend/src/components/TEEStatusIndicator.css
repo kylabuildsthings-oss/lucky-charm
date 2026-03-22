@@ -42,6 +42,12 @@
   white-space: nowrap;
 }
 
+@media (max-width: 640px) {
+  .tee-status {
+    display: none;
+  }
+}
+
 @keyframes tee-status-pulse {
   0%,
   100% {

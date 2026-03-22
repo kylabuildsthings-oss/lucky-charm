@@ -458,79 +458,62 @@ export default function Dashboard() {
             {' – '}
             Latest: {teeResult.filename} ({formatTEETimestamp(teeResult.timestamp)})
           </span>
-          <div className="dashboard-banner-actions">
-            <button
-              type="button"
-              className="dashboard-copy-llm-btn"
-              onClick={handleCopyForLLM}
-              title="Copy markdown context for ChatGPT, Claude, or other LLMs"
-            >
+          <div className="dashboard-banner-actions dashboard-banner-actions--desktop">
+            <button type="button" className="dashboard-copy-llm-btn" onClick={handleCopyForLLM} title="Copy markdown context">
               Copy for LLM
             </button>
-            <button
-              type="button"
-              className="dashboard-download-json-btn"
-              onClick={handleDownloadJSON}
-              title="Download contextual data as JSON file for upload to LLMs or other tools"
-            >
+            <button type="button" className="dashboard-download-json-btn" onClick={handleDownloadJSON} title="Download JSON">
               Download JSON
             </button>
-            <button
-              type="button"
-              className="dashboard-clear-btn"
-              onClick={handleClearDashboard}
-              title="Clear dashboard data"
-            >
+            <button type="button" className="dashboard-clear-btn" onClick={handleClearDashboard} title="Clear dashboard data">
               Clear all
             </button>
-            <button
-              type="button"
-              className="dashboard-complete-btn"
-              onClick={() => setShowCompleteModal(true)}
-              title="Mark deliverable complete and start a new phase"
-            >
+            <button type="button" className="dashboard-complete-btn" onClick={() => setShowCompleteModal(true)} title="Mark deliverable complete">
               Mark deliverable complete
             </button>
-            <button
-              type="button"
-              className="dashboard-clear-btn dashboard-clear-cache-btn"
-              onClick={handleClearCacheAndFreshStart}
-              title="Clear all app data and start fresh"
-            >
+            <button type="button" className="dashboard-clear-btn dashboard-clear-cache-btn" onClick={handleClearCacheAndFreshStart} title="Clear all app data">
               Clear cache & start fresh
             </button>
           </div>
+          <select
+            className="dashboard-actions-dropdown"
+            aria-label="Actions"
+            defaultValue=""
+            onChange={(e) => {
+              const v = e.target.value
+              e.target.value = ''
+              if (v === 'clear-cache') handleClearCacheAndFreshStart()
+              else if (v === 'copy') handleCopyForLLM()
+              else if (v === 'download') handleDownloadJSON()
+              else if (v === 'clear') handleClearDashboard()
+              else if (v === 'complete') setShowCompleteModal(true)
+            }}
+          >
+            <option value="">Actions</option>
+            <option value="clear-cache">Clear cache & start fresh</option>
+            <option value="copy">Copy for LLM</option>
+            <option value="download">Download JSON</option>
+            <option value="clear">Clear all</option>
+            <option value="complete">Mark deliverable complete</option>
+          </select>
         </div>
       )}
 
       {dataForCopyDownload && !hasTEEResult && !viewingArchived && !showEmptyState && (
         <div className="dashboard-tee-banner dashboard-tee-banner--mock" role="status">
           <span>Demo data · Team: <strong>{dataForCopyDownload.teamName}</strong></span>
-          <div className="dashboard-banner-actions">
-            <button
-              type="button"
-              className="dashboard-clear-btn"
-              onClick={handleClearDashboard}
-              title="Clear dashboard data"
-            >
+          <div className="dashboard-banner-actions dashboard-banner-actions--desktop">
+            <button type="button" className="dashboard-clear-btn" onClick={handleClearDashboard} title="Clear dashboard data">
               Clear all
             </button>
-            <button
-              type="button"
-              className="dashboard-clear-btn dashboard-clear-cache-btn"
-              onClick={handleClearCacheAndFreshStart}
-              title="Clear all app data and start fresh"
-            >
+            <button type="button" className="dashboard-clear-btn dashboard-clear-cache-btn" onClick={handleClearCacheAndFreshStart} title="Clear all app data">
               Clear cache & start fresh
             </button>
             <button
               type="button"
               className="dashboard-copy-llm-btn"
-              onClick={() => {
-                const ctx = buildLLMContext(dataForCopyDownload)
-                if (ctx) navigator.clipboard.writeText(ctx)
-              }}
-              title="Copy markdown context for ChatGPT, Claude, or other LLMs"
+              onClick={() => { const ctx = buildLLMContext(dataForCopyDownload); if (ctx) navigator.clipboard.writeText(ctx) }}
+              title="Copy markdown context"
             >
               Copy for LLM
             </button>
@@ -548,11 +531,40 @@ export default function Dashboard() {
                 a.click()
                 URL.revokeObjectURL(url)
               }}
-              title="Download contextual data as JSON file for upload to LLMs or other tools"
+              title="Download JSON"
             >
               Download JSON
             </button>
           </div>
+          <select
+            className="dashboard-actions-dropdown"
+            aria-label="Actions"
+            defaultValue=""
+            onChange={(e) => {
+              const v = e.target.value
+              e.target.value = ''
+              if (v === 'clear-cache') handleClearCacheAndFreshStart()
+              else if (v === 'copy') { const ctx = buildLLMContext(dataForCopyDownload); if (ctx) navigator.clipboard.writeText(ctx) }
+              else if (v === 'download') {
+                const data = buildLLMContextJSON(dataForCopyDownload)
+                if (!dataForCopyDownload || !data || Object.keys(data).length === 0) return
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+                const url = URL.createObjectURL(blob)
+                const a = document.createElement('a')
+                a.href = url
+                a.download = `project-context-${(dataForCopyDownload.teamName ?? 'standup').replace(/\s+/g, '-')}-${new Date().toISOString().slice(0, 10)}.json`
+                a.click()
+                URL.revokeObjectURL(url)
+              }
+              else if (v === 'clear') handleClearDashboard()
+            }}
+          >
+            <option value="">Actions</option>
+            <option value="clear-cache">Clear cache & start fresh</option>
+            <option value="copy">Copy for LLM</option>
+            <option value="download">Download JSON</option>
+            <option value="clear">Clear all</option>
+          </select>
         </div>
       )}
 

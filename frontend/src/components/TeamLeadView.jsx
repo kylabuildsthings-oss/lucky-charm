@@ -297,7 +297,7 @@ export default function TeamLeadView({ teeResult, teamName, teamMembers = [], ag
   return (
     <div className="team-lead-view ai-dashboard team-lead-fit">
       <div className="dashboard-with-sidebar">
-      <aside className="dashboard-sidebar" aria-label="Sections">
+      <aside className="dashboard-sidebar dashboard-sidebar--nav" aria-label="Sections">
         <h3 className="dashboard-sidebar-title">Sections</h3>
         <nav className="dashboard-sidebar-nav" role="navigation">
           {leadTabs.map((t) => (
@@ -315,6 +315,18 @@ export default function TeamLeadView({ teeResult, teamName, teamMembers = [], ag
           ))}
         </nav>
       </aside>
+      <select
+        className="dashboard-sections-dropdown"
+        aria-label="Select section"
+        value={activeTab}
+        onChange={(e) => setActiveTab(e.target.value)}
+      >
+        {leadTabs.map((t) => (
+          <option key={t.id} value={t.id}>
+            {t.label}{t.count != null ? ` (${t.count})` : ''}
+          </option>
+        ))}
+      </select>
 
       <main className="dashboard-main">
         <header className="dashboard-main-header">
